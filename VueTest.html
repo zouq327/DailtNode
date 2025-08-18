@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue动态路由导航</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+        #app {
+            display: flex;
+            height: 100%;
+        }
+        .sidebar {
+            width: 220px;
+            background: #545c64;
+            color: white;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            background: #f0f2f5;
+        }
+        .menu-title {
+            padding: 15px;
+            font-size: 16px;
+            border-bottom: 1px solid #434a50;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="sidebar">
+            <div class="menu-title">导航菜单</div>
+            <el-menu
+                :default-active="activeMenu"
+                background-color="#545c64"
+                text-color="#fff"
+                active-text-color="#ffd04b"
+                :router="true"
+                :unique-opened="true">
+                <template v-for="item in menuList">
+                    <el-submenu 
+                        v-if="item.children && item.children.length"
+                        :index="item.path"
+                        :key="item.path">
+                        <template slot="title">
+                            <i :class="item.icon"></i>
+                            <span>{{ item.title }}</span>
+                        </template>
+                        <el-menu-item 
+                            v-for="child in item.children"
+                            :key="child.path"
+                            :index="child.path">
+                            {{ child.title }}
+                        </el-menu-item>
+                    </el-submenu>
+                    <el-menu-item 
+                        v-else
+                        :index="item.path"
+                        :key="item.path">
+                        <i :class="item.icon"></i>
+                        <span slot="title">{{ item.title }}</span>
+                    </el-menu-item>
+                </template>
+            </el-menu>
+        </div>
+        <div class="content-area">
+            <router-view></router-view>
+        </div>
+    </div>
+
+    <!-- 引入Vue.js和Vue Router -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router@3.5.3/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    
+    <script>
+        // 定义动态组件
+        const Dashboard = { template: '<div><h2>控制台</h2><p>欢迎使用系统</p></div>' }
+        const UserList = { template: '<div><h2>用户管理</h2><p>用户列表内容</p></div>' }
+        const RoleList = { template: '<div><h2>角色管理</h2><p>角色列表内容</p></div>' }
+        const SystemSetting = { template: '<div><h2>系统设置</h2><p>系统配置内容</p></div>' }
+
+        // 模拟从API获取动态路由数据
+        function fetchMenuList() {
+            return [
+                {
+                    title: '控制台',
+                    path: '/dashboard',
+                    icon: 'el-icon-s-home',
+                    component: 'Dashboard'
+                },
+                {
+                    title: '系统管理',
+                    path: '/system',
+                    icon: 'el-icon-setting',
+                    children: [
+                        {
+                            title: '用户管理',
+                            path: '/system/user',
+                            component: 'UserList'
+                        },
+                        {
+                            title: '角色管理',
+                            path: '/system/role',
+                            component: 'RoleList'
+                        }
+                    ]
+                },
+                {
+                    title: '设置中心',
+                    path: '/setting',
+                    icon: 'el-icon-s-tools',
+                    component: 'SystemSetting'
+                }
+            ]
+        }
+
+        // 创建路由实例
+        const router = new VueRouter({
+            routes: [
+                { path: '/', redirect: '/dashboard' }
+            ]
+        })
+
+        // 动态添加路由
+        function addDynamicRoutes(menuList) {
+            menuList.forEach(menu => {
+                if (menu.component) {
+                    router.addRoute({
+                        path: menu.path,
+                        name: menu.path.substring(1),
+                        component: eval(menu.component)
+                    })
+                }
+                if (menu.children && menu.children.length) {
+                    menu.children.forEach(child => {
+                        if (child.component) {
+                            router.addRoute('system', {
+                                path: child.path,
+                                name: child.path.substring(1),
+                                component: eval(child.component)
+                            })
+                        }
+                    })
+                }
+            })
+        }
+
+        // 创建Vue实例
+        new Vue({
+            el: '#app',
+            router,
+            data() {
+                return {
+                    menuList: [],
+                    activeMenu: '/dashboard'
+                }
+            },
+            created() {
+                // 模拟异步获取菜单数据
+                setTimeout(() => {
+                    this.menuList = fetchMenuList()
+                    addDynamicRoutes(this.menuList)
+                }, 500)
+            },
+            watch: {
+                $route(to) {
+                    this.activeMenu = to.path
+                }
+            }
+        })
+    </script>
+</body>
+</html>
