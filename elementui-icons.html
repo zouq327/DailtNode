@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ElementUI图标展示</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <style>
+    .icon-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      padding: 20px;
+    }
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 0.3s;
+      border: 1px solid #ebeef5;
+    }
+    .icon-item:hover {
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+    }
+    .icon-item i {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #409EFF;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h2 style="text-align:center;margin:20px 0">ElementUI图标库</h2>
+    <div class="icon-container">
+      <div v-for="icon in icons" :key="icon" class="icon-item">
+        <i :class="'el-icon-' + icon"></i>
+        <span>{{ icon }}</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        icons: [
+          'search', 'edit', 'check', 'message', 'star',
+          'delete', 'share', 'download', 'upload', 'phone',
+          'user', 'setting', 'location', 'date', 'time',
+          'picture', 'document', 'folder', 'menu', 'more',
+          'loading', 'arrow-up', 'arrow-down', 'arrow-left', 'arrow-right'
+        ]
+      }
+    });
+  </script>
+</body>
+</html>
